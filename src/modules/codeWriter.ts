@@ -14,7 +14,7 @@ const SEGMENT_MAP = {
 }
 
 export default class CodeWriter implements ICodeWriter {
-    baseName: string
+    baseName: string // file name without extension
     withComment: boolean = false
     labelIndex: number = 0
 
@@ -97,6 +97,18 @@ export default class CodeWriter implements ICodeWriter {
         }
 
         return lines
+    }
+
+    writeLabel(label: string): string[] {
+        return [`(${label})`]
+    }
+
+    writeGoto(label: string): string[] {
+        return [`@${label}`, '0;JMP']
+    }
+
+    writeIf(label: string): string[] {
+        return [...this.spMinus(), 'D=M', `@${label}`, 'D;JNE']
     }
 
     private pushVirtualSegment(

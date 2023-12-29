@@ -81,14 +81,26 @@ export default class Translator implements TranslatorInterface {
                     )
                     break
 
-                case 'C_ARITHMETIC':
+                case 'C_ARITHMETIC': {
                     const operator = parser.arg1()
                     lines.push(...codeWriter.writeArithmetic(operator))
                     break
-
-                case 'C_LABEL':
-                case 'C_GOTO':
-                case 'C_IF':
+                }
+                case 'C_LABEL': {
+                    const label = parser.arg1()
+                    lines.push(...codeWriter.writeLabel(label))
+                    break
+                }
+                case 'C_GOTO': {
+                    const label = parser.arg1()
+                    lines.push(...codeWriter.writeGoto(label))
+                    break
+                }
+                case 'C_IF': {
+                    const label = parser.arg1()
+                    lines.push(...codeWriter.writeIf(label))
+                    break
+                }
                 case 'C_FUNCTION':
                 case 'C_RETURN':
                 case 'C_CALL':
