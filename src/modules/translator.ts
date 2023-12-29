@@ -1,6 +1,7 @@
 import checkPath from './utils/checkPath'
 import fs from 'fs'
 import createEmptyFile from './utils/createEmptyFile'
+import Parser from './parser'
 
 type Args = {
     withComment: boolean
@@ -32,7 +33,19 @@ export default class Translator implements TranslatorInterface {
         // translate files and write to output file
         for (const file of files) {
             console.log(`Translating ${file} ...`)
-            const fileContent = fs.readFileSync(file, 'utf-8')
+            await this.translateFile(file)
         }
+    }
+
+    async translateFile(filePath: string) {
+        const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+        const lines = fileContent.split('\n')
+
+        if (lines.length === 0) {
+            throw new Error(`File ${filePath} is empty`)
+        }
+
+        const parser = new Parser(lines)
     }
 }
