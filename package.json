@@ -1,21 +1,23 @@
 {
-  "name": "vm_translator_ts",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "ts-node src/index.ts",
-    "test": "vitest"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3",
-    "vitest": "^1.1.0"
-  },
-  "dependencies": {
-    "@types/node": "^20.10.5"
-  }
+    "name": "vm_translator_ts",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "format": "prettier --write src/**/*.ts",
+        "dev": "ts-node src/index.ts",
+        "test": "vitest"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "prettier": "3.1.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3",
+        "vitest": "^1.1.0"
+    },
+    "dependencies": {
+        "@types/node": "^20.10.5"
+    }
 }
