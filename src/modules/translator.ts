@@ -48,7 +48,8 @@ export default class Translator implements TranslatorInterface {
 
         const parser = new Parser(fileContent)
 
-        const codeWriter = new CodeWriter(this.args.withComment)
+        const baseName = extractFileBaseName(filePath)
+        const codeWriter = new CodeWriter(baseName, this.args.withComment)
 
         const lines: string[] = []
 
@@ -63,7 +64,7 @@ export default class Translator implements TranslatorInterface {
                 const lineMark = this.addLineMark(
                     parser.currentLine,
                     parser.currentIndex,
-                    filePath,
+                    baseName,
                 )
                 lines.push(...lineMark)
             }
@@ -100,13 +101,12 @@ export default class Translator implements TranslatorInterface {
         return lines
     }
 
-    addLineMark(line: string, lineIndex: number, filePath: string): string[] {
-        const fileName = extractFileBaseName(filePath)
+    addLineMark(line: string, lineIndex: number, baseName: string): string[] {
         return [
             '',
             '',
             `// --- ${line} ---`,
-            `// ${fileName} - line ${lineIndex}`,
+            `// ${baseName} - line ${lineIndex}`,
         ]
     }
 }
