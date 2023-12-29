@@ -1,7 +1,7 @@
 import checkPath from './utils/checkPath'
 import fs from 'fs'
-import createEmptyFile from './utils/createEmptyFile'
 import Parser from './parser'
+import CodeWriter from './codeWriter'
 
 type Args = {
     withComment: boolean
@@ -24,28 +24,63 @@ export default class Translator implements TranslatorInterface {
     }
 
     async translate() {
-        console.log('translate todo....')
         const { isDir, dirPath, baseName, files } = checkPath(this.path)
 
-        // create an empty output file
-        createEmptyFile(`${dirPath}/${baseName}.asm`)
-
         // translate files and write to output file
+        const outputLines = ['asd', 'asd']
         for (const file of files) {
             console.log(`Translating ${file} ...`)
-            await this.translateFile(file)
+            const fileLines = await this.translateFile(file)
+            outputLines.push(...fileLines)
         }
+
+        // create an empty output file
+        fs.writeFileSync(`${dirPath}/${baseName}.asm`, outputLines.join('\n'), {
+            flag: 'w',
+        })
     }
 
-    async translateFile(filePath: string) {
+    async translateFile(filePath: string): Promise<string[]> {
         const fileContent = fs.readFileSync(filePath, 'utf-8')
 
         const parser = new Parser(fileContent)
 
+        const codeWriter = new CodeWriter(this.args.withComment)
+
+        const lines: string[] = []
+
         while (parser.hasMoreLines()) {
             parser.advance()
 
+            if (parser.isWhitespaceOrComment()) {
+                continue
+            }
+
             const commandType = parser.commandType()
+
+            // switch (commandType) {
+            //     case 'C_PUSH':
+            //     case 'C_POP':
+            //         const segment = parser.arg1()
+            //         const index = parser.arg2()
+            //         lines = codeWriter.writePushPop(commandType, segment, index)
+            //         break
+            //     case 'C_ARITHMETIC':
+            //         const operator = parser.arg1()
+            //         lines = codeWriter.writeArithmetic(operator)
+            //         break
+            //     case 'C_LABEL':
+            //     case 'C_GOTO':
+            //     case 'C_IF':
+            //     case 'C_FUNCTION':
+            //     case 'C_RETURN':
+            //     case 'C_CALL':
+            //         throw new Error('Not implemented')
+            //     default:
+            //         throw new Error(`CommandType ${commandType} isn't handled`)
+            // }
         }
+
+        return lines
     }
 }

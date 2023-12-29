@@ -7,7 +7,7 @@ test('init parser', () => {
     const input = lines.join('\n')
     const parser = new Parser(input)
 
-    expect(parser.currentLine).toBe(-1)
+    expect(parser.currentIndex).toBe(-1)
     expect(parser.lines.length).toBe(3)
 })
 
@@ -17,47 +17,27 @@ describe('advance()', () => {
         const input = lines.join('\n')
         const parser = new Parser(input)
 
-        expect(parser.currentLine).toBe(-1)
+        expect(parser.currentIndex).toBe(-1)
 
         parser.advance()
-        expect(parser.currentLine).toBe(0)
+        expect(parser.currentIndex).toBe(0)
 
         parser.advance()
-        expect(parser.currentLine).toBe(1)
+        expect(parser.currentIndex).toBe(1)
 
         parser.advance()
-        expect(parser.currentLine).toBe(2)
+        expect(parser.currentIndex).toBe(2)
 
         expect(() => parser.advance()).toThrow('No more lines')
     })
 
-    test('skip empty lines', () => {
-        const lines = ['', 'push constant 7', '', 'push constant 7']
+    test('No more line error', () => {
+        const lines = ['push constant 7']
         const input = lines.join('\n')
         const parser = new Parser(input)
 
         parser.advance()
-        expect(parser.currentLine).toBe(1)
-
-        parser.advance()
-        expect(parser.currentLine).toBe(3)
-    })
-
-    test('skip comment lines', () => {
-        const lines = [
-            '// comment',
-            'push constant 7',
-            '// comment',
-            'push constant 7',
-        ]
-        const input = lines.join('\n')
-        const parser = new Parser(input)
-
-        parser.advance()
-        expect(parser.currentLine).toBe(1)
-
-        parser.advance()
-        expect(parser.currentLine).toBe(3)
+        expect(() => parser.advance()).toThrow('No more lines')
     })
 })
 

@@ -2,7 +2,7 @@ import { CommandType } from '../types'
 
 interface IParser {
     lines: string[]
-    currentLine: number
+    currentIndex: number
     hasMoreLines(): boolean
     advance(): void
     commandType(): CommandType
@@ -13,7 +13,7 @@ interface IParser {
 export default class Parser implements IParser {
     lines: string[]
     // default -1, so that parser need to advance() to reach the first valid lines
-    currentLine: number = -1
+    currentIndex: number = -1
 
     constructor(fileContent: string) {
         const lines = fileContent.split('\n')
@@ -26,30 +26,24 @@ export default class Parser implements IParser {
     }
 
     hasMoreLines(): boolean {
-        return this.currentLine < this.lines.length
+        return this.currentIndex + 1 < this.lines.length
     }
 
-    // advance to next line that is not empty or comment
     advance(): void {
-        this.currentLine++
-
-        while (this.hasMoreLines()) {
-            const line = this.lines[this.currentLine]
-
-            if (line.trim() === '' || line.trim().startsWith('//')) {
-                this.currentLine++
-            } else {
-                break
-            }
-        }
-
         if (!this.hasMoreLines()) {
             throw new Error('No more lines')
         }
+
+        this.currentIndex++
+    }
+
+    isWhitespaceOrComment(): boolean {
+        const line = this.lines[this.currentIndex].trim()
+        return line === '' || line.startsWith('//')
     }
 
     commandType(): CommandType {
-        const line = this.lines[this.currentLine].trim()
+        const line = this.lines[this.currentIndex].trim()
 
         const firstWord = line.split(' ')[0]
 
@@ -112,10 +106,10 @@ export default class Parser implements IParser {
             commandType === 'C_GOTO' ||
             commandType === 'C_IF'
         ) {
-            return this.lines[this.currentLine].split(' ')[1]
+            return this.lines[this.currentIndex].split(' ')[1]
         } else {
             // C_ARITHMETIC
-            return this.lines[this.currentLine].split(' ')[0]
+            return this.lines[this.currentIndex].split(' ')[0]
         }
     }
 
@@ -128,7 +122,7 @@ export default class Parser implements IParser {
             commandType === 'C_FUNCTION' ||
             commandType === 'C_CALL'
         ) {
-            return Number(this.lines[this.currentLine].split(' ')[2])
+            return Number(this.lines[this.currentIndex].split(' ')[2])
         } else {
             throw new Error(
                 `Parse Line Error: arg2() should NOT be called for ${commandType}`,
