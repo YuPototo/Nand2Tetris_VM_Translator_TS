@@ -5,10 +5,10 @@ This is a VM translator for the Nand2Tetris course. It translates VM code to Hac
 ## Usage
 
 ```bash
-pnpm dev path/to/folder
+pnpm dev path/to/folderOrFile
 ```
 
-A folder path is required. The folder should contain one or more .vm files. The output will be a `source.asm` file in the same folder.
+A folder path is required. The folder should contain one or more .vm files. The output will be an `.asm` file in the same folder.
 
 ## Unit Tests
 
@@ -26,3 +26,19 @@ Refer to the [Nand2Tetris website](https://www.nand2tetris.org/software) and fol
 
 - Project 7
 - Project 8
+
+## Specification
+
+### Directory or File
+
+The input can be a directory or a file. If it is a directory, the translator will translate all .vm files in the directory. If it is a file, the translator will translate the file.
+
+Only 1 file is generated.
+
+If the input is a directory, the output file will be named after the directory. `path/to/dir` will generate `dir.asm`.
+
+If the input is a file, the output file will be named after the file. `path/to/file.vm` will generate `file.asm`.
+
+### File Name Convention
+
+The first character of the file name must be an Uppercase letter.
