@@ -16,6 +16,7 @@ const SEGMENT_MAP = {
 export default class CodeWriter implements ICodeWriter {
     baseName: string
     withComment: boolean = false
+    labelIndex: number = 0
 
     constructor(baseName: string, withComment: boolean) {
         this.baseName = baseName
@@ -23,7 +24,27 @@ export default class CodeWriter implements ICodeWriter {
     }
 
     writeArithmetic(command: string): string[] {
-        return ['C_ARITHMETIC']
+        let lines: string[] = []
+
+        if (command === 'add') {
+            lines = this.writeAdd()
+        } else if (command === 'sub') {
+            lines = this.writeSub()
+        } else if (command === 'neg') {
+            lines = this.writeNeg()
+        } else if (command === 'eq' || command === 'gt' || command === 'lt') {
+            lines = this.writeCompare(command)
+        } else if (command === 'and') {
+            lines = this.writeAnd()
+        } else if (command === 'or') {
+            lines = this.writeOr()
+        } else if (command === 'not') {
+            lines = this.writeNot()
+        } else {
+            throw new Error(`Arithmetic command ${command} isn't handled`)
+        }
+
+        return lines
     }
 
     writePushPop(
@@ -31,27 +52,28 @@ export default class CodeWriter implements ICodeWriter {
         segment: string,
         indexOrValue: number,
     ): string[] {
-        let res: string[] = []
+        let lines: string[] = []
+
         if (command === 'C_PUSH') {
             if (segment === 'constant') {
-                res = this.pushConstant(indexOrValue)
+                lines = this.pushConstant(indexOrValue)
             } else if (
                 segment === 'local' ||
                 segment === 'argument' ||
                 segment === 'this' ||
                 segment === 'that'
             ) {
-                res = this.pushVirtualSegment(segment, indexOrValue)
+                lines = this.pushVirtualSegment(segment, indexOrValue)
             } else if (segment === 'pointer') {
-                res = this.pushPointer(indexOrValue)
+                lines = this.pushPointer(indexOrValue)
             } else if (segment === 'temp') {
-                res = this.pushTemp(indexOrValue)
+                lines = this.pushTemp(indexOrValue)
             } else if (segment === 'static') {
-                res = this.pushStatic(indexOrValue)
+                lines = this.pushStatic(indexOrValue)
+            } else {
+                throw new Error(`Segment ${segment} isn't handled`)
             }
-        }
-
-        if (command === 'C_POP') {
+        } else if (command === 'C_POP') {
             if (segment === 'constant') {
                 throw new Error('Cannot pop to constant')
             } else if (
@@ -60,17 +82,21 @@ export default class CodeWriter implements ICodeWriter {
                 segment === 'this' ||
                 segment === 'that'
             ) {
-                res = this.popVirtualSegment(segment, indexOrValue)
+                lines = this.popVirtualSegment(segment, indexOrValue)
             } else if (segment === 'pointer') {
-                res = this.popPointer(indexOrValue)
+                lines = this.popPointer(indexOrValue)
             } else if (segment === 'temp') {
-                res = this.popTemp(indexOrValue)
+                lines = this.popTemp(indexOrValue)
             } else if (segment === 'static') {
-                res = this.popStatic(indexOrValue)
+                lines = this.popStatic(indexOrValue)
+            } else {
+                throw new Error(`Segment ${segment} isn't handled`)
             }
+        } else {
+            throw new Error(`CommandType ${command} isn't handled`)
         }
 
-        return res
+        return lines
     }
 
     private pushVirtualSegment(
@@ -167,6 +193,60 @@ export default class CodeWriter implements ICodeWriter {
 
     private popStatic(index: number): string[] {
         return [...this.spMinus(), 'D=M', `@${this.baseName}.${index}`, 'M=D']
+    }
+
+    private writeAdd(): string[] {
+        return [...this.popFirstTwoValues(), 'M=D+M', ...this.spPlus()]
+    }
+
+    private writeSub(): string[] {
+        return [...this.popFirstTwoValues(), 'M=M-D', ...this.spPlus()]
+    }
+
+    private writeNeg(): string[] {
+        return [...this.spMinus(), 'M=-M', ...this.spPlus()]
+    }
+
+    private writeCompare(operator: string): string[] {
+        this.labelIndex += 1
+
+        const isTrueLabel = `${this.baseName}_${operator}_TRUE_${this.labelIndex}`
+        const notTrueLabel = `${this.baseName}_${operator}_NOT_TRUE_${this.labelIndex}`
+
+        return [
+            ...this.popFirstTwoValues(),
+            'D=M-D',
+            `@${isTrueLabel}`,
+            `D;J${operator.toUpperCase()}`,
+            '@SP',
+            'A=M',
+            'M=0',
+            `@${notTrueLabel}`,
+            '0;JMP',
+            `(${isTrueLabel})`,
+            '@SP',
+            'A=M',
+            'M=-1',
+            `(${notTrueLabel})`,
+            '@SP',
+            'M=M+1',
+        ]
+    }
+
+    private writeAnd(): string[] {
+        return [...this.popFirstTwoValues(), 'M=D&M', ...this.spPlus()]
+    }
+
+    private writeOr(): string[] {
+        return [...this.popFirstTwoValues(), 'M=D|M', ...this.spPlus()]
+    }
+
+    private writeNot(): string[] {
+        return [...this.spMinus(), 'M=!M', ...this.spPlus()]
+    }
+
+    private popFirstTwoValues(): string[] {
+        return [...this.spMinus(), 'D=M', ...this.spMinus()]
     }
 
     private spMinus(): string[] {

@@ -106,10 +106,10 @@ export default class Parser implements IParser {
             commandType === 'C_GOTO' ||
             commandType === 'C_IF'
         ) {
-            return this.lines[this.currentIndex].split(' ')[1]
+            return this.lines[this.currentIndex].split(' ')[1].trim()
         } else {
             // C_ARITHMETIC
-            return this.lines[this.currentIndex].split(' ')[0]
+            return this.lines[this.currentIndex].split(' ')[0].trim()
         }
     }
 
@@ -131,6 +131,6 @@ export default class Parser implements IParser {
     }
 
     get currentLine(): string {
-        return this.lines[this.currentIndex]
+        return this.lines[this.currentIndex].trim()
     }
 }

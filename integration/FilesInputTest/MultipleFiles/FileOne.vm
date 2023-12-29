@@ -1,2 +1,10 @@
 push constant 2
 add
+sub
+neg
+eq
+gt
+lt
+and
+or
+not
