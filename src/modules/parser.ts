@@ -1,13 +1,4 @@
-export type CommandType =
-    | 'C_ARITHMETIC'
-    | 'C_PUSH'
-    | 'C_POP'
-    | 'C_LABEL'
-    | 'C_GOTO'
-    | 'C_IF'
-    | 'C_FUNCTION'
-    | 'C_RETURN'
-    | 'C_CALL'
+import { CommandType } from '../types'
 
 interface IParser {
     lines: string[]
@@ -24,7 +15,13 @@ export default class Parser implements IParser {
     // default -1, so that parser need to advance() to reach the first valid lines
     currentLine: number = -1
 
-    constructor(lines: string[]) {
+    constructor(fileContent: string) {
+        const lines = fileContent.split('\n')
+
+        if (lines.length === 0) {
+            throw new Error(`File is empty`)
+        }
+
         this.lines = lines
     }
 

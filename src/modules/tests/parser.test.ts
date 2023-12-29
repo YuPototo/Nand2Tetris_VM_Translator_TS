@@ -3,11 +3,9 @@ import Parser from '../parser'
 import { expect, test, describe } from 'vitest'
 
 test('init parser', () => {
-    const parser = new Parser([
-        'push constant 7',
-        'push constant 7',
-        'push constant 7',
-    ])
+    const lines = ['push constant 7', 'push constant 7', 'push constant 7']
+    const input = lines.join('\n')
+    const parser = new Parser(input)
 
     expect(parser.currentLine).toBe(-1)
     expect(parser.lines.length).toBe(3)
@@ -15,11 +13,9 @@ test('init parser', () => {
 
 describe('advance()', () => {
     test('simple advance', () => {
-        const parser = new Parser([
-            'push constant 7',
-            'push constant 7',
-            'push constant 7',
-        ])
+        const lines = ['push constant 7', 'push constant 7', 'push constant 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         expect(parser.currentLine).toBe(-1)
 
@@ -36,12 +32,9 @@ describe('advance()', () => {
     })
 
     test('skip empty lines', () => {
-        const parser = new Parser([
-            '',
-            'push constant 7',
-            '',
-            'push constant 7',
-        ])
+        const lines = ['', 'push constant 7', '', 'push constant 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.currentLine).toBe(1)
@@ -51,12 +44,14 @@ describe('advance()', () => {
     })
 
     test('skip comment lines', () => {
-        const parser = new Parser([
+        const lines = [
             '// comment',
             'push constant 7',
             '// comment',
             'push constant 7',
-        ])
+        ]
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.currentLine).toBe(1)
@@ -68,7 +63,9 @@ describe('advance()', () => {
 
 describe('command type', () => {
     test('C_PUSH', () => {
-        const parser = new Parser(['push constant 7', 'push temp 7'])
+        const lines = ['push constant 7', 'push temp 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_PUSH')
@@ -78,7 +75,9 @@ describe('command type', () => {
     })
 
     test('C_POP', () => {
-        const parser = new Parser(['pop constant 7', 'pop temp 7'])
+        const lines = ['pop constant 7', 'pop temp 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_POP')
@@ -88,7 +87,7 @@ describe('command type', () => {
     })
 
     test('C_ARITHMETIC', () => {
-        const parser = new Parser([
+        const lines = [
             'add',
             'sub',
             'neg',
@@ -98,7 +97,9 @@ describe('command type', () => {
             'and',
             'or',
             'not',
-        ])
+        ]
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_ARITHMETIC') // add
@@ -129,7 +130,9 @@ describe('command type', () => {
     })
 
     test('C_LABEL', () => {
-        const parser = new Parser(['label label1', 'label label2'])
+        const lines = ['label label1', 'label label2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_LABEL')
@@ -139,7 +142,9 @@ describe('command type', () => {
     })
 
     test('C_GOTO', () => {
-        const parser = new Parser(['goto label1', 'goto label2'])
+        const lines = ['goto label1', 'goto label2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_GOTO')
@@ -149,7 +154,9 @@ describe('command type', () => {
     })
 
     test('C_IF', () => {
-        const parser = new Parser(['if-goto label1', 'if-goto label2'])
+        const lines = ['if-goto label1', 'if-goto label2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_IF')
@@ -159,7 +166,9 @@ describe('command type', () => {
     })
 
     test('C_FUNCTION', () => {
-        const parser = new Parser(['function label1 0', 'function label2 0'])
+        const lines = ['function label1 0', 'function label2 0']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_FUNCTION')
@@ -169,7 +178,9 @@ describe('command type', () => {
     })
 
     test('C_RETURN', () => {
-        const parser = new Parser(['return', 'return'])
+        const lines = ['return', 'return']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_RETURN')
@@ -179,7 +190,9 @@ describe('command type', () => {
     })
 
     test('C_CALL', () => {
-        const parser = new Parser(['call label1 0', 'call label2 0'])
+        const lines = ['call label1 0', 'call label2 0']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_CALL')
@@ -189,7 +202,9 @@ describe('command type', () => {
     })
 
     test('invalid command', () => {
-        const parser = new Parser(['badWord'])
+        const lines = ['badWord']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.commandType()).toThrow(
@@ -200,7 +215,9 @@ describe('command type', () => {
 
 describe('arg1()', () => {
     test('push', () => {
-        const parser = new Parser(['push constant 7', 'push temp 7'])
+        const lines = ['push constant 7', 'push temp 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('constant')
@@ -210,7 +227,9 @@ describe('arg1()', () => {
     })
 
     test('pop', () => {
-        const parser = new Parser(['pop constant 7', 'pop temp 7'])
+        const lines = ['pop constant 7', 'pop temp 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('constant')
@@ -220,7 +239,9 @@ describe('arg1()', () => {
     })
 
     test('function', () => {
-        const parser = new Parser(['function func1', 'function func2'])
+        const lines = ['function func1', 'function func2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('func1')
@@ -230,7 +251,9 @@ describe('arg1()', () => {
     })
 
     test('call', () => {
-        const parser = new Parser(['call func1', 'call func2'])
+        const lines = ['call func1', 'call func2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('func1')
@@ -240,7 +263,9 @@ describe('arg1()', () => {
     })
 
     test('label', () => {
-        const parser = new Parser(['label label1', 'label label2'])
+        const lines = ['label label1', 'label label2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('label1')
@@ -250,7 +275,9 @@ describe('arg1()', () => {
     })
 
     test('goto', () => {
-        const parser = new Parser(['goto label1', 'goto label2'])
+        const lines = ['goto label1', 'goto label2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('label1')
@@ -260,7 +287,9 @@ describe('arg1()', () => {
     })
 
     test('if-goto', () => {
-        const parser = new Parser(['if-goto label1', 'if-goto label2'])
+        const lines = ['if-goto label1', 'if-goto label2']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('label1')
@@ -270,7 +299,7 @@ describe('arg1()', () => {
     })
 
     test('arithmetic', () => {
-        const parser = new Parser([
+        const lines = [
             'add',
             'sub',
             'neg',
@@ -280,7 +309,9 @@ describe('arg1()', () => {
             'and',
             'or',
             'not',
-        ])
+        ]
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg1()).toBe('add')
@@ -311,7 +342,9 @@ describe('arg1()', () => {
     })
 
     test('return', () => {
-        const parser = new Parser(['return'])
+        const lines = ['return']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.arg1()).toThrow(
@@ -322,7 +355,9 @@ describe('arg1()', () => {
 
 describe('arg2()', () => {
     test('push', () => {
-        const parser = new Parser(['push constant 7', 'push temp 9'])
+        const lines = ['push constant 7', 'push temp 9']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg2()).toBe(7)
@@ -332,7 +367,9 @@ describe('arg2()', () => {
     })
 
     test('pop', () => {
-        const parser = new Parser(['pop constant 7', 'pop temp 9'])
+        const lines = ['pop constant 7', 'pop temp 9']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg2()).toBe(7)
@@ -342,7 +379,9 @@ describe('arg2()', () => {
     })
 
     test('function', () => {
-        const parser = new Parser(['function func1 7', 'function func2 9'])
+        const lines = ['function func1 7', 'function func2 9']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg2()).toBe(7)
@@ -352,7 +391,9 @@ describe('arg2()', () => {
     })
 
     test('call', () => {
-        const parser = new Parser(['call func1 7', 'call func2 9'])
+        const lines = ['call func1 7', 'call func2 9']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.arg2()).toBe(7)
@@ -362,7 +403,9 @@ describe('arg2()', () => {
     })
 
     test('label', () => {
-        const parser = new Parser(['label label1'])
+        const lines = ['label label1']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.arg2()).toThrow(
@@ -371,7 +414,9 @@ describe('arg2()', () => {
     })
 
     test('goto', () => {
-        const parser = new Parser(['goto label1'])
+        const lines = ['goto label1']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.arg2()).toThrow(
@@ -380,7 +425,9 @@ describe('arg2()', () => {
     })
 
     test('if-goto', () => {
-        const parser = new Parser(['if-goto label1'])
+        const lines = ['if-goto label1']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.arg2()).toThrow(
@@ -389,7 +436,7 @@ describe('arg2()', () => {
     })
 
     test('arithmetic', () => {
-        const parser = new Parser([
+        const lines = [
             'add',
             'sub',
             'neg',
@@ -399,7 +446,9 @@ describe('arg2()', () => {
             'and',
             'or',
             'not',
-        ])
+        ]
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.arg2()).toThrow(
@@ -448,7 +497,9 @@ describe('arg2()', () => {
     })
 
     test('return', () => {
-        const parser = new Parser(['return'])
+        const lines = ['return']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(() => parser.arg2()).toThrow(
@@ -459,18 +510,22 @@ describe('arg2()', () => {
 
 describe('handle comments and whitespace', () => {
     test('ignore comment lines', () => {
-        const parser = new Parser(['// comment', 'push constant 7'])
+        const lines = ['// comment', 'push constant 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_PUSH')
     })
 
     test('handle inline comments', () => {
-        const parser = new Parser([
+        const lines = [
             '// comment ',
             'push constant 7 // comment',
             'return // comment',
-        ])
+        ]
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_PUSH')
@@ -482,21 +537,27 @@ describe('handle comments and whitespace', () => {
     })
 
     test('handle padding whitespace', () => {
-        const parser = new Parser([' // comments', '    push constant 7'])
+        const lines = [' // comments', '    push constant 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_PUSH')
     })
 
     test('ignore whitespace lines', () => {
-        const parser = new Parser([' ', 'push constant 7'])
+        const lines = [' ', 'push constant 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_PUSH')
     })
 
     test('handle empty line', () => {
-        const parser = new Parser(['', 'push constant 7'])
+        const lines = ['', 'push constant 7']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
 
         parser.advance()
         expect(parser.commandType()).toBe('C_PUSH')

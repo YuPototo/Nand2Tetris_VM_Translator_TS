@@ -40,12 +40,12 @@ export default class Translator implements TranslatorInterface {
     async translateFile(filePath: string) {
         const fileContent = fs.readFileSync(filePath, 'utf-8')
 
-        const lines = fileContent.split('\n')
+        const parser = new Parser(fileContent)
 
-        if (lines.length === 0) {
-            throw new Error(`File ${filePath} is empty`)
+        while (parser.hasMoreLines()) {
+            parser.advance()
+
+            const commandType = parser.commandType()
         }
-
-        const parser = new Parser(lines)
     }
 }
