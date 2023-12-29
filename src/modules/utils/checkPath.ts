@@ -1,7 +1,6 @@
 import fs from 'fs'
 
 type PathInfo = {
-    isDir: boolean
     dirPath: string
     baseName: string
     files: string[]
@@ -23,7 +22,6 @@ export default function checkPath(path: string): PathInfo {
         const files = getValidFiles(path).map((file) => `${path}/${file}`)
 
         return {
-            isDir,
             dirPath: path,
             baseName: baseName,
             files,
@@ -41,7 +39,6 @@ export default function checkPath(path: string): PathInfo {
     validateName(baseName)
 
     return {
-        isDir,
         dirPath: extractPath(path),
         baseName,
         files: [path],

@@ -56,3 +56,9 @@ If the input is a file, the output file will be named after the file. `path/to/f
 ### File Name Convention
 
 The first character of the file name must be an Uppercase letter.
+
+## Todo
+
+- Make cli arg work
+- Make it a cli tool
+- Add bootstrap code

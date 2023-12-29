@@ -1,4 +1,4 @@
-import checkPath from './utils/checkPath'
+import checkPath, { extractFileBaseName } from './utils/checkPath'
 import fs from 'fs'
 import Parser from './parser'
 import CodeWriter from './codeWriter'
@@ -24,18 +24,21 @@ export default class Translator implements TranslatorInterface {
     }
 
     async translate() {
-        const { isDir, dirPath, baseName, files } = checkPath(this.path)
+        const { dirPath, baseName, files } = checkPath(this.path)
 
         // translate files and write to output file
-        const outputLines = ['asd', 'asd']
+        const outputLines = []
+
         for (const file of files) {
             console.log(`Translating ${file} ...`)
             const fileLines = await this.translateFile(file)
             outputLines.push(...fileLines)
         }
 
-        // create an empty output file
-        fs.writeFileSync(`${dirPath}/${baseName}.asm`, outputLines.join('\n'), {
+        // write to file
+        const outputFilePath = `${dirPath}/${baseName}.asm`
+        const fileText = outputLines.join('\n') + '\n'
+        fs.writeFileSync(outputFilePath, fileText, {
             flag: 'w',
         })
     }
@@ -56,31 +59,54 @@ export default class Translator implements TranslatorInterface {
                 continue
             }
 
+            if (this.args.withComment) {
+                const lineMark = this.addLineMark(
+                    parser.currentLine,
+                    parser.currentIndex,
+                    filePath,
+                )
+                lines.push(...lineMark)
+            }
+
             const commandType = parser.commandType()
 
-            // switch (commandType) {
-            //     case 'C_PUSH':
-            //     case 'C_POP':
-            //         const segment = parser.arg1()
-            //         const index = parser.arg2()
-            //         lines = codeWriter.writePushPop(commandType, segment, index)
-            //         break
-            //     case 'C_ARITHMETIC':
-            //         const operator = parser.arg1()
-            //         lines = codeWriter.writeArithmetic(operator)
-            //         break
-            //     case 'C_LABEL':
-            //     case 'C_GOTO':
-            //     case 'C_IF':
-            //     case 'C_FUNCTION':
-            //     case 'C_RETURN':
-            //     case 'C_CALL':
-            //         throw new Error('Not implemented')
-            //     default:
-            //         throw new Error(`CommandType ${commandType} isn't handled`)
-            // }
+            switch (commandType) {
+                case 'C_PUSH':
+                case 'C_POP':
+                    const segment = parser.arg1()
+                    const index = parser.arg2()
+                    lines.push(
+                        ...codeWriter.writePushPop(commandType, segment, index),
+                    )
+                    break
+
+                case 'C_ARITHMETIC':
+                    const operator = parser.arg1()
+                    lines.push(...codeWriter.writeArithmetic(operator))
+                    break
+
+                case 'C_LABEL':
+                case 'C_GOTO':
+                case 'C_IF':
+                case 'C_FUNCTION':
+                case 'C_RETURN':
+                case 'C_CALL':
+                    throw new Error('Not implemented')
+                default:
+                    throw new Error(`CommandType ${commandType} isn't handled`)
+            }
         }
 
         return lines
+    }
+
+    addLineMark(line: string, lineIndex: number, filePath: string): string[] {
+        const fileName = extractFileBaseName(filePath)
+        return [
+            '',
+            '',
+            `// --- ${line} ---`,
+            `// ${fileName} - line ${lineIndex}`,
+        ]
     }
 }

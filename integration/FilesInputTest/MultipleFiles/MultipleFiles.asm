@@ -1,2 +1,5 @@
-asd
-asd
+C_PUSH
+C_POP
+C_ARITHMETIC
+C_PUSH
+C_POP

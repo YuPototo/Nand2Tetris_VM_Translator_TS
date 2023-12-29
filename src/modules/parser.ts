@@ -129,4 +129,8 @@ export default class Parser implements IParser {
             )
         }
     }
+
+    get currentLine(): string {
+        return this.lines[this.currentIndex]
+    }
 }

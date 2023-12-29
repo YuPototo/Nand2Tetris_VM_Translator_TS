@@ -8,6 +8,7 @@ async function main() {
     const [, , ...rest] = args
     const [filePath, comment, bootstrap] = rest
 
+    // todo: fix args, maybe get a lib
     const withComment = comment === '--comment=true'
     const withBootstrap = bootstrap !== '--bootstrap=false'
 
