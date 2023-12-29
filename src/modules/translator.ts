@@ -2,18 +2,24 @@ import checkPath from './utils/checkPath'
 import fs from 'fs'
 import createEmptyFile from './utils/createEmptyFile'
 
+type Args = {
+    withComment: boolean
+    withBootstrap: boolean
+}
+
 interface TranslatorInterface {
     path: string // path to dir or file
+    args: Args
     translate(): void // translate the file or dir
 }
 
 export default class Translator implements TranslatorInterface {
     path: string
-    withComment: boolean
+    args: Args
 
-    constructor(path: string, withComment: boolean) {
+    constructor(path: string, args: Args) {
         this.path = path
-        this.withComment = withComment
+        this.args = args
     }
 
     async translate() {

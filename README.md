@@ -14,8 +14,14 @@ If you need comment on asm file:
 
 ```bash
 
-pnpm dev path/to/folderOrFile --comment
+pnpm dev path/to/folderOrFile --comment=true
 
+```
+
+if you don't need bootstrap code:
+
+```bash
+pnpm dev path/to/folderOrFile --bootstrap=false
 ```
 
 ## Unit Tests
