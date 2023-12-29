@@ -1,5 +1,4 @@
 import Translator from './modules/translator'
-import checkPath from './modules/utils/checkPath'
 
 main()
 
@@ -9,7 +8,9 @@ async function main() {
     const [, , ...rest] = args
     const [filePath, comment] = rest
 
-    const translator = new Translator(filePath)
+    const withComment = comment === '--comment'
+
+    const translator = new Translator(filePath, withComment)
 
     await translator.translate()
 }

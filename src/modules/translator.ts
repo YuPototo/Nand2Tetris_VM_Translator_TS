@@ -9,9 +9,11 @@ interface TranslatorInterface {
 
 export default class Translator implements TranslatorInterface {
     path: string
+    withComment: boolean
 
-    constructor(path: string) {
+    constructor(path: string, withComment: boolean) {
         this.path = path
+        this.withComment = withComment
     }
 
     async translate() {

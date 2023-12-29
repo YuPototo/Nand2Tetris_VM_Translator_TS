@@ -10,6 +10,14 @@ pnpm dev path/to/folderOrFile
 
 A folder path is required. The folder should contain one or more .vm files. The output will be an `.asm` file in the same folder.
 
+If you need comment on asm file:
+
+```bash
+
+pnpm dev path/to/folderOrFile --comment
+
+```
+
 ## Unit Tests
 
 Unit tests are provided to facilitate refactor.
