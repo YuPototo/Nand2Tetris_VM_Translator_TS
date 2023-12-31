@@ -23,6 +23,10 @@ export default class CodeWriter implements ICodeWriter {
         this.withComment = withComment
     }
 
+    writeInit(): string[] {
+        return ['@256', 'D=A', '@SP', 'M=D', ...this.writeCall('Sys.init', 0)]
+    }
+
     writeArithmetic(command: string): string[] {
         let lines: string[] = []
 
@@ -109,6 +113,93 @@ export default class CodeWriter implements ICodeWriter {
 
     writeIf(label: string): string[] {
         return [...this.spMinus(), 'D=M', `@${label}`, 'D;JNE']
+    }
+
+    writeFunction(functionName: string, numLocals: number): string[] {
+        let lines: string[] = []
+
+        lines.push(`(${functionName})`)
+
+        for (let i = 0; i < numLocals; i++) {
+            lines.push(...this.pushConstant(0))
+        }
+
+        return lines
+    }
+
+    writeReturn(): string[] {
+        let lines = []
+
+        // frame (R13) = LCL
+        lines.push('@LCL', 'D=M', '@R13', 'M=D')
+
+        // retAddr (R14) = *(frame - 5)
+        lines.push('@R13', 'D=M', '@5', 'A=D-A', 'D=M', '@R14', 'M=D')
+
+        // *ARG = pop()
+        lines.push(
+            '@ARG',
+            'D=M',
+            '@R15',
+            'M=D',
+            '@SP',
+            'AM=M-1',
+            'D=M',
+            '@R15',
+            'A=M',
+            'M=D',
+        )
+
+        // SP = ARG + 1
+        lines.push('@ARG', 'D=M+1', '@SP', 'M=D')
+
+        // THAT = *(frame - 1)
+        lines.push('@R13', 'D=M', '@1', 'A=D-A', 'D=M', '@THAT', 'M=D')
+
+        // THIS = *(frame - 2)
+        lines.push('@R13', 'D=M', '@2', 'A=D-A', 'D=M', '@THIS', 'M=D')
+
+        // ARG = *(frame - 3)
+        lines.push('@R13', 'D=M', '@3', 'A=D-A', 'D=M', '@ARG', 'M=D')
+
+        // LCL = *(frame - 4)
+        lines.push('@R13', 'D=M', '@4', 'A=D-A', 'D=M', '@LCL', 'M=D')
+
+        // goto retAddr
+        lines.push('@R14', 'A=M', '0;JMP')
+
+        return lines
+    }
+
+    writeCall(functionName: string, numArgs: number): string[] {
+        let lines: string[] = []
+
+        this.labelIndex += 1
+
+        // push return address
+        const returnAddressLabel = `${functionName}$ret.${this.labelIndex}`
+
+        lines.push(...this.pushReturnAddressToFrame(returnAddressLabel))
+
+        // push LCL, ARG, THIS, THAT
+        lines.push(...this.pushSegmentToFrame('LCL'))
+        lines.push(...this.pushSegmentToFrame('ARG'))
+        lines.push(...this.pushSegmentToFrame('THIS'))
+        lines.push(...this.pushSegmentToFrame('THAT'))
+
+        // reposition ARG
+        lines.push(...this.repositionArg(numArgs))
+
+        // reposition LCL
+        lines.push(...this.repositionLCL())
+
+        // go to function
+        lines.push(...[`@${functionName}`, '0;JMP'])
+
+        // return address label
+        lines.push(`(${returnAddressLabel})`)
+
+        return lines
     }
 
     private pushVirtualSegment(
@@ -267,5 +358,39 @@ export default class CodeWriter implements ICodeWriter {
 
     private spPlus(): string[] {
         return ['@SP', 'M=M+1']
+    }
+
+    private pushReturnAddressToFrame(returnAddressLabel: string): string[] {
+        return [
+            `@${returnAddressLabel}`,
+            'D=A',
+            '@SP',
+            'A=M',
+            'M=D',
+            ...this.spPlus(),
+        ]
+    }
+
+    private pushSegmentToFrame(
+        segment: 'LCL' | 'THIS' | 'THAT' | 'ARG',
+    ): string[] {
+        return [`@${segment}`, 'D=M', '@SP', 'A=M', 'M=D', ...this.spPlus()]
+    }
+
+    private repositionArg(numArgs: number): string[] {
+        return [
+            '@SP',
+            'D=M',
+            `@${numArgs}`,
+            'D=D-A',
+            '@5',
+            'D=D-A',
+            '@ARG',
+            'M=D',
+        ]
+    }
+
+    private repositionLCL(): string[] {
+        return ['@SP', 'D=M', '@LCL', 'M=D']
     }
 }

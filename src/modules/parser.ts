@@ -97,6 +97,10 @@ export default class Parser implements IParser {
             throw new Error('Parse Line Error: arg1() for C_RETURN')
         }
 
+        // remove comments
+        const line = this.lines[this.currentIndex].trim()
+        const lineWithoutComments = line.split('//')[0].trim()
+
         if (
             commandType === 'C_PUSH' ||
             commandType === 'C_POP' ||
@@ -106,15 +110,19 @@ export default class Parser implements IParser {
             commandType === 'C_GOTO' ||
             commandType === 'C_IF'
         ) {
-            return this.lines[this.currentIndex].split(' ')[1].trim()
+            return lineWithoutComments.split(' ')[1].trim()
         } else {
             // C_ARITHMETIC
-            return this.lines[this.currentIndex].split(' ')[0].trim()
+            return lineWithoutComments.split(' ')[0].trim()
         }
     }
 
     arg2(): number {
         const commandType = this.commandType()
+
+        // remove comments
+        const line = this.lines[this.currentIndex].trim()
+        const lineWithoutComments = line.split('//')[0].trim()
 
         if (
             commandType === 'C_PUSH' ||
@@ -122,7 +130,7 @@ export default class Parser implements IParser {
             commandType === 'C_FUNCTION' ||
             commandType === 'C_CALL'
         ) {
-            return Number(this.lines[this.currentIndex].split(' ')[2])
+            return Number(lineWithoutComments.split(' ')[2].trim())
         } else {
             throw new Error(
                 `Parse Line Error: arg2() should NOT be called for ${commandType}`,

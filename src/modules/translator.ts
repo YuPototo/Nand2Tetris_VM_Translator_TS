@@ -53,6 +53,10 @@ export default class Translator implements TranslatorInterface {
 
         const lines: string[] = []
 
+        if (this.args.withBootstrap) {
+            lines.push(...codeWriter.writeInit())
+        }
+
         while (parser.hasMoreLines()) {
             parser.advance()
 
@@ -101,10 +105,24 @@ export default class Translator implements TranslatorInterface {
                     lines.push(...codeWriter.writeIf(label))
                     break
                 }
-                case 'C_FUNCTION':
-                case 'C_RETURN':
-                case 'C_CALL':
-                    throw new Error('Not implemented')
+                case 'C_FUNCTION': {
+                    const functionName = parser.arg1()
+                    const numLocals = parser.arg2()
+                    lines.push(
+                        ...codeWriter.writeFunction(functionName, numLocals),
+                    )
+                    break
+                }
+                case 'C_RETURN': {
+                    lines.push(...codeWriter.writeReturn())
+                    break
+                }
+                case 'C_CALL': {
+                    const functionName = parser.arg1()
+                    const numArgs = parser.arg2()
+                    lines.push(...codeWriter.writeCall(functionName, numArgs))
+                    break
+                }
                 default:
                     throw new Error(`CommandType ${commandType} isn't handled`)
             }

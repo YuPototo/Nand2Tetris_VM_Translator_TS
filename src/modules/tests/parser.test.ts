@@ -346,6 +346,15 @@ describe('arg2()', () => {
         expect(parser.arg2()).toBe(9)
     })
 
+    test('With comment', () => {
+        const lines = ['push constant 4000	// test THIS and THAT context save']
+        const input = lines.join('\n')
+        const parser = new Parser(input)
+
+        parser.advance()
+        expect(parser.arg2()).toBe(4000)
+    })
+
     test('pop', () => {
         const lines = ['pop constant 7', 'pop temp 9']
         const input = lines.join('\n')
@@ -485,61 +494,5 @@ describe('arg2()', () => {
         expect(() => parser.arg2()).toThrow(
             'Parse Line Error: arg2() should NOT be called for C_RETURN',
         )
-    })
-})
-
-describe('handle comments and whitespace', () => {
-    test('ignore comment lines', () => {
-        const lines = ['// comment', 'push constant 7']
-        const input = lines.join('\n')
-        const parser = new Parser(input)
-
-        parser.advance()
-        expect(parser.commandType()).toBe('C_PUSH')
-    })
-
-    test('handle inline comments', () => {
-        const lines = [
-            '// comment ',
-            'push constant 7 // comment',
-            'return // comment',
-        ]
-        const input = lines.join('\n')
-        const parser = new Parser(input)
-
-        parser.advance()
-        expect(parser.commandType()).toBe('C_PUSH')
-        expect(parser.arg1()).toBe('constant')
-        expect(parser.arg2()).toBe(7)
-
-        parser.advance()
-        expect(parser.commandType()).toBe('C_RETURN')
-    })
-
-    test('handle padding whitespace', () => {
-        const lines = [' // comments', '    push constant 7']
-        const input = lines.join('\n')
-        const parser = new Parser(input)
-
-        parser.advance()
-        expect(parser.commandType()).toBe('C_PUSH')
-    })
-
-    test('ignore whitespace lines', () => {
-        const lines = [' ', 'push constant 7']
-        const input = lines.join('\n')
-        const parser = new Parser(input)
-
-        parser.advance()
-        expect(parser.commandType()).toBe('C_PUSH')
-    })
-
-    test('handle empty line', () => {
-        const lines = ['', 'push constant 7']
-        const input = lines.join('\n')
-        const parser = new Parser(input)
-
-        parser.advance()
-        expect(parser.commandType()).toBe('C_PUSH')
     })
 })

@@ -89,7 +89,7 @@ export function getValidFiles(path: string): string[] {
         throw new Error(`No .vm files found in ${path}`)
     }
 
-    files.forEach(validateName)
+    validFiles.forEach(validateName)
 
     return validFiles
 }
