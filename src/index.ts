@@ -1,18 +1,14 @@
+import checkArg from './modules/checkArg'
 import Translator from './modules/translator'
 
 main()
 
 async function main() {
-    const args = process.argv
+    const [, , filePath, ...restArgs] = process.argv
 
-    const [, , ...rest] = args
-    const [filePath, comment, bootstrap] = rest
+    const translatorArgs = checkArg(restArgs)
 
-    // todo: fix args, maybe get a lib
-    const withComment = comment === '--comment=true'
-    const withBootstrap = bootstrap !== '--bootstrap=false'
-
-    const translator = new Translator(filePath, { withComment, withBootstrap })
+    const translator = new Translator(filePath, translatorArgs)
 
     await translator.translate()
 }

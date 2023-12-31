@@ -24,6 +24,7 @@ export default class Translator implements TranslatorInterface {
     }
 
     async translate() {
+        console.log(`args: ${JSON.stringify(this.args)}`)
         const { dirPath, baseName, files } = checkPath(this.path)
 
         // translate files and write to output file

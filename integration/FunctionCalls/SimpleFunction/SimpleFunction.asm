@@ -1,7 +1,3 @@
-
-
-// --- function SimpleFunction.test 2 ---
-// SimpleFunction - line 6
 (SimpleFunction.test)
 @0
 D=A
@@ -17,10 +13,6 @@ A=M
 M=D
 @SP
 M=M+1
-
-
-// --- push local 0 ---
-// SimpleFunction - line 7
 @LCL
 D=M
 @0
@@ -31,10 +23,6 @@ A=M
 M=D
 @SP
 M=M+1
-
-
-// --- push local 1 ---
-// SimpleFunction - line 8
 @LCL
 D=M
 @1
@@ -45,10 +33,6 @@ A=M
 M=D
 @SP
 M=M+1
-
-
-// --- add ---
-// SimpleFunction - line 9
 @SP
 AM=M-1
 D=M
@@ -57,19 +41,11 @@ AM=M-1
 M=D+M
 @SP
 M=M+1
-
-
-// --- not ---
-// SimpleFunction - line 10
 @SP
 AM=M-1
 M=!M
 @SP
 M=M+1
-
-
-// --- push argument 0 ---
-// SimpleFunction - line 11
 @ARG
 D=M
 @0
@@ -80,10 +56,6 @@ A=M
 M=D
 @SP
 M=M+1
-
-
-// --- add ---
-// SimpleFunction - line 12
 @SP
 AM=M-1
 D=M
@@ -92,10 +64,6 @@ AM=M-1
 M=D+M
 @SP
 M=M+1
-
-
-// --- push argument 1 ---
-// SimpleFunction - line 13
 @ARG
 D=M
 @1
@@ -106,10 +74,6 @@ A=M
 M=D
 @SP
 M=M+1
-
-
-// --- sub ---
-// SimpleFunction - line 14
 @SP
 AM=M-1
 D=M
@@ -118,10 +82,6 @@ AM=M-1
 M=M-D
 @SP
 M=M+1
-
-
-// --- return ---
-// SimpleFunction - line 15
 @LCL
 D=M
 @R13
